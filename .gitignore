@@ -1,0 +1,12 @@
+# IDE
+*.iml
+.idea/
+
+# build
+dist/
+.tmp
+karma_html
+
+# libs
+bower_components
+node_modules
