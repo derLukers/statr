@@ -19,7 +19,6 @@ require.config
   callback: window.__karma__.start
 
   paths:
-    'backbone.marionette': 'bower_components/backbone.marionette/lib/backbone.marionette'
     backbone: 'bower_components/backbone/backbone'
     jquery: 'bower_components/jquery/dist/jquery'
     underscore: 'bower_components/underscore/underscore'

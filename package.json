@@ -1,32 +1,33 @@
 {
-  "name": "backbone.marionette.stateful",
+  "name": "backbone.stateful",
   "version": "0.0.0",
-  "description": "An extension to the Marionette router to ass stateful behaviour, heavily inspired by Angular-ui.router.",
+  "description": "An extension to the Backbone router to ass stateful behaviour, heavily inspired by Angular-ui.router.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/derLukers/backbone.marionette.stateful.git"
+    "url": "http://github.com/derLukers/backbone.stateful.git"
   },
   "keywords": [
     "Backbone",
-    "Marionette",
     "Stateful",
     "Router"
   ],
   "author": "Lukas Peleska <git@luaks.net>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/derLukers/backbone.marionette.stateful/issues"
+    "url": "https://github.com/derLukers/backbone.stateful/issues"
   },
-  "homepage": "https://github.com/derLukers/backbone.marionette.stateful",
+  "homepage": "https://github.com/derLukers/backbone.stateful",
   "devDependencies": {
     "chai": "^1.10.0",
     "coffee-script": "^1.8.0",
+    "coffeelint": "^1.6.1",
     "gulp-clean": "^0.3.1",
     "gulp-coffee": "^2.2.0",
+    "gulp-coffeelint": "^0.4.0",
     "gulp-karma": "0.0.4",
     "gulp-markdown": "^1.0.0",
     "gulp-sourcemaps": "^1.2.8",

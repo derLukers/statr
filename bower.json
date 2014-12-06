@@ -1,21 +1,20 @@
 {
-  "name": "backbone.marionette.stateful",
+  "name": "backbone.stateful",
   "version": "0.0.0",
   "authors": [
     "Lukas Peleska <git@luaks.net>"
   ],
-  "description": "An extension to the Marionette router to ass stateful behaviour, heavily inspired by Angular-ui.router.",
+  "description": "An extension to the Backbone router to add stateful behaviour, heavily inspired by Angular-ui.router.",
   "moduleType": [
     "amd"
   ],
   "keywords": [
     "Backbone",
-    "Marionette",
     "Stateful",
     "Router"
   ],
   "license": "MIT",
-  "homepage": "http://github.com/derLukers/backbone.marionette.stateful",
+  "homepage": "http://github.com/derLukers/backbone.stateful",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -26,6 +25,7 @@
   "private": true,
   "devDependencies": {
     "requirejs": "~2.1.15",
-    "backbone.marionette": "~2.2.2"
+    "backbone": "~1.1.2",
+    "jquery": "~2.1.1"
   }
 }

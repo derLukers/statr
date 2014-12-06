@@ -13,7 +13,6 @@ module.exports = (config) ->
       {pattern: './dist/*.js', included: false},
       {pattern: './test/*.coffee', included: false}
       {pattern: './bower_components/*/*.js', included: false}
-      {pattern: './bower_components/backbone.marionette/lib/*.js', included: false}
       {pattern: './bower_components/jquery/dist/jquery.js', included: false}
     ]
 

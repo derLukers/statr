@@ -1,10 +1,10 @@
 define [
-  'underscore', 'backbone.marionette'
-], (_, marionette) ->
+  'underscore', 'backbone'
+], (_, backbone) ->
   window.foo = new class StateManager
     states = {}
     activeState = null
-    router: new Marionette.AppRouter()
+    router: new backbone.Router()
     go: (name, parameters, options = {navigate: true}) ->
       unless states[name]
         throw new Error 'No State with name "' + name + "' found."
