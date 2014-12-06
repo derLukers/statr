@@ -61,7 +61,6 @@ define [
         expect(bbstate.generateRouteString()).to.equal 'b/b'
 
       it 'should result in the correct templating of the route for bastate', ->
-        console.log bastate.generateRoute foo: 'foo'
         expect(bastate.generateRoute foo: 'foo').to.equal 'b/foo'
 
       it 'should not generate repeating slashes, even if one state does not have a route', ->

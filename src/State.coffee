@@ -1,11 +1,3 @@
-###
-  # State
-
-  The [Angular ui.router Team describes](https://github.com/angular-ui/ui-router/wiki) states as:
-  > ... a "place" in the application in terms of the overall UI and navigation.
-  This place is both
-
-###
 define [
   './StateManager'
   'require'
@@ -44,10 +36,10 @@ define [
       if initial
         resolvePromise.then (resolveResult)->
           activationPromise.resolve resolveResult
-      unless @currentChild == child #foo
+      unless @currentChild == child
         @currentChild?.deactivate()
         @currentChild = child
-      unless @isActive && @generateRoute(@currentParameters) == @generateRoute(parameters)
+      unless @isActive and @generateRoute(@currentParameters) == @generateRoute(parameters)
         if @parent
           @parent.activate parameters, @, activationPromise
           .then (parentResolveResult)=>
@@ -76,7 +68,7 @@ define [
       @currentChild = null
 
     generateRoute: (parameters)->
-      (if @parent?.generateRoute(parameters).length then @parent.generateRoute(parameters) + '/' else '') + if @route then _.template(@route)(parameters) else ''
+      (if @parent?.generateRoute(parameters).length then @parent.generateRoute(parameters)+'/' else '') + if @route then _.template(@route)(parameters) else ''
 
     generateRouteString: ()->
       (if @parent?.generateRouteString().length then @parent.generateRouteString() + (if @route then '/' else '') else '') + if @route then @route else ''
@@ -85,8 +77,6 @@ define [
       (if @parent?.statename then @parent.generateName() + '.' else '') + @statename
 
     getParentChain: ->
-      unless @parent
-        return [@]
-      chain = @parent.getParentChain()
+      chain = @parent?.getParentChain() or []
       chain.push @
       return chain

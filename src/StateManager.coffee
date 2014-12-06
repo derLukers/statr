@@ -20,11 +20,15 @@ define [
         throw new Error('State with name "' + name + '" already exists.')
       states[state.generateName()] = state
       if state.route && !state.abstract
-        @router.route state.generateRouteString(), state.generateName(), (parameters)->
-          _arguments = arguments
-          parameters = _.object _.map state.generateRouteString().match(/:([a-zA-Z0-9\-_]+)/g), (name, index)->
-            [name.substring(1), _arguments[index]]
-          state.activate parameters
+        @router.route state.generateRouteString(), state.generateName(),
+          (parameters)->
+            _arguments = arguments
+            parameters = _.object _.map(
+              state.generateRouteString().match(/:([a-zA-Z0-9\-_]+)/g),
+              (name, index)->
+                [name.substring(1), _arguments[index]]
+            )
+            state.activate parameters
 
     getState: (name)->
       states[name]
