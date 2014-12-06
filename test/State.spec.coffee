@@ -1,7 +1,6 @@
 define [
-  'dist/StateManager'
   'dist/State'
-], (StateManager, State)->
+], (State)->
   describe 'State', ->
     astate = new class extends State
       statename: 'a'
@@ -28,31 +27,31 @@ define [
 
     describe 'name generation', ->
       it 'should result in the correct name for state "a"', ->
-        expect(astate.generateName()).toEqual 'a'
+        expect(astate.generateName()).to.equal 'a'
       it 'should result in the correct name for state "a.b"', ->
-        expect(abstate.generateName()).toEqual 'a.b'
+        expect(abstate.generateName()).to.equal 'a.b'
       it 'should result in the correct name for state "a.b.c"', ->
-        expect(abcstate.generateName()).toEqual 'a.b.c'
+        expect(abcstate.generateName()).to.equal 'a.b.c'
       it 'should result in the correct name for state "b"', ->
-        expect(bstate.generateName()).toEqual 'b'
+        expect(bstate.generateName()).to.equal 'b'
       it 'should result in the correct name for state "b.a"', ->
-        expect(bastate.generateName()).toEqual 'b.a'
+        expect(bastate.generateName()).to.equal 'b.a'
       it 'should result in the correct name for state "b.b"', ->
-        expect(bbstate.generateName()).toEqual 'b.b'
+        expect(bbstate.generateName()).to.equal 'b.b'
 
     describe 'route generation', ->
       it 'should result in the correct route for state "a"', ->
-        expect(astate.generateRouteString()).toEqual '/a'
+        expect(astate.generateRouteString()).to.equal '/a'
       it 'should result in the correct route for state "a.b"', ->
-        expect(abstate.generateRouteString()).toEqual '/a/b'
+        expect(abstate.generateRouteString()).to.equal '/a/b'
       it 'should result in the correct route for state "a.b.c"', ->
-        expect(abcstate.generateRouteString()).toEqual '/a/b/c'
+        expect(abcstate.generateRouteString()).to.equal '/a/b/c'
       it 'should result in the correct route for state "b"', ->
-        expect(bstate.generateRouteString()).toEqual '/b'
+        expect(bstate.generateRouteString()).to.equal '/b'
       it 'should result in the correct route for state "b.a"', ->
-        expect(bastate.generateRouteString()).toEqual '/b/:foo'
+        expect(bastate.generateRouteString()).to.equal '/b/:foo'
       it 'should result in the correct route for state "b.b"', ->
-        expect(bbstate.generateRouteString()).toEqual '/b/b'
+        expect(bbstate.generateRouteString()).to.equal '/b/b'
 
       it 'should result in the correct templating of the route for bastate', ->
-        expect(bastate.generateRoute(foo: 'foo')).toEqual('/b/foo')
+        expect(bastate.generateRoute foo: 'foo').to.equal '/b/foo'

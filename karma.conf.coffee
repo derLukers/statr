@@ -6,7 +6,7 @@ module.exports = (config) ->
 
     basePath: ''
 
-    frameworks: ['jasmine', 'requirejs']
+    frameworks: ['mocha', 'requirejs', 'chai', 'sinon']
 
     files: [
       './test-main.coffee',
@@ -23,7 +23,7 @@ module.exports = (config) ->
 
     colors: true
 
-    logLevel: config.LOG_INFO
+    logLevel: config.LOG_DEBUG
 
     autoWatch: true
 

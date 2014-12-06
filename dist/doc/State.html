@@ -1,0 +1,74 @@
+<h1 id="state">State</h1>
+<p>The <a href="">Angular ui.router Team describes</a> states as:</p>
+<blockquote>
+<p> ... a &quot;place&quot; in the application in terms of the overall UI and navigation</p>
+</blockquote>
+<p>States are organized in trees, which reduces the amount of code, and helps managing routes, names and dependencies of the states.
+We will work on an organizer example, which has the following tree of states. When referring to the states, their full name will in most cases be abbreviated to the last part.</p>
+<pre><code><div class="highlight"><pre>    <span class="nx">o</span>   <span class="nx">organizer</span>   <span class="p">(</span><span class="nx">full</span> <span class="nx">name</span> <span class="nx">is</span> <span class="s2">&quot;organizer&quot;</span><span class="p">)</span>
+   <span class="o">/</span> <span class="o">\</span>
+  <span class="o">|</span>  <span class="nx">o</span>    <span class="nx">calendar</span>  <span class="p">(</span><span class="nx">full</span> <span class="nx">name</span> <span class="nx">is</span> <span class="s2">&quot;organizer.calendar&quot;</span><span class="p">)</span>
+  <span class="o">|</span>
+  <span class="nx">o</span>       <span class="nx">contacts</span>  <span class="p">(</span><span class="nx">full</span> <span class="nx">name</span> <span class="nx">is</span> <span class="s2">&quot;organizer.contacts&quot;</span><span class="p">)</span>
+ <span class="o">/</span> <span class="o">\</span>
+<span class="nx">o</span>  <span class="o">|</span>      <span class="nx">detail</span>    <span class="p">(</span><span class="nx">full</span> <span class="nx">name</span> <span class="nx">is</span> <span class="s2">&quot;organizer.contacts.detail&quot;</span><span class="p">)</span>
+   <span class="o">|</span>
+   <span class="nx">o</span>      <span class="nx">edit</span>      <span class="p">(</span><span class="nx">full</span> <span class="nx">name</span> <span class="nx">is</span> <span class="s2">&quot;organizer.contacts.edit&quot;</span><span class="p">)</span>
+</pre></div>
+
+</code></pre><p>When a state is activated, its parent states are sequentially resolved and activated from the top.
+This enables using entities, which were resolved by parent states, inside the current states resolve.
+For example, upon login, the organizer state is activated and resolves the current users details from the server via the url <code>/api/currentuser</code>. When the contacts state is now
+activated, it wants to have the id of the current user, so it can call <code>/api/user/&lt;id&gt;/contacts</code>. Therefore the contacts state uses the resolved values of the organizer state to.
+This approach however, comes with a performance trade off, when having slow resolves, which would then be executed sequentially.</p>
+<h2 id="creating-states">Creating States</h2>
+<p>States can be created in the following way:</p>
+<pre><code class="lang-coffeescript"><div class="highlight"><pre><span class="nv">organizer = </span><span class="k">new</span> <span class="k">class</span> <span class="k">extends</span> <span class="nx">State</span>
+    <span class="nv">route: </span><span class="s">&#39;&#39;</span>
+    <span class="nv">statename: </span><span class="s">&#39;organizer&#39;</span>
+    <span class="nv">resolve:</span>
+        <span class="nv">user: </span><span class="nf">-&gt;</span>
+            <span class="nx">fetchCurrentUser</span><span class="p">()</span>
+    <span class="nv">onActivate: </span><span class="nf">(parameters, resolveResults)-&gt;</span>
+        <span class="p">...</span> <span class="nx">show</span> <span class="nx">organizer</span> <span class="nx">view</span> <span class="k">for</span> <span class="nx">user</span> <span class="p">...</span>
+
+<span class="nv">contacts = </span><span class="k">new</span> <span class="k">class</span> <span class="k">extends</span> <span class="nx">State</span>
+    <span class="nv">route: </span><span class="s">&#39;contacts&#39;</span>
+    <span class="nv">statename: </span><span class="s">&#39;contacts&#39;</span>
+    <span class="nv">parent: </span><span class="nx">organizer</span>
+    <span class="nv">resolve:</span>
+        <span class="nv">contacts:</span>
+            <span class="nx">fetchContactsForUser</span><span class="p">(</span><span class="nx">resolveResults</span><span class="p">[</span><span class="s">&#39;user&#39;</span><span class="p">])</span>
+    <span class="nv">onActivate: </span><span class="nf">(parameters, resolveResults)-&gt;</span>
+        <span class="p">...</span> <span class="nx">show</span> <span class="nx">contacts</span> <span class="nx">view</span> <span class="k">for</span> <span class="nx">user</span> <span class="p">...</span>
+
+<span class="nv">editcontact = </span><span class="k">new</span> <span class="k">class</span> <span class="k">extends</span> <span class="nx">State</span>
+    <span class="nv">route: </span><span class="s">&#39;:contactid/edit&#39;</span>
+    <span class="nv">statename: </span><span class="s">&#39;edit&#39;</span>
+    <span class="nv">parent: </span><span class="nx">organizer</span>
+    <span class="nv">resolve:</span>
+        <span class="nv">contact: </span><span class="nf">(parameters, resolveResults)-&gt;</span>
+            <span class="nx">fetchContact</span><span class="p">(</span><span class="nx">parameters</span><span class="p">[</span><span class="s">&#39;contactid&#39;</span><span class="p">])</span>
+    <span class="nv">onActivate: </span><span class="nf">(parameters, resolveResults)-&gt;</span>
+        <span class="p">...</span> <span class="nx">show</span> <span class="nx">contacts</span> <span class="nx">edit</span> <span class="k">for</span> <span class="nx">user</span> <span class="p">...</span>
+</pre></div>
+
+</code></pre>
+<p>The states are then automatically registered with the statemanager.</p>
+<h2 id="switching-between-states">Switching between states</h2>
+<p>Switching and routing from one state to another can be easily done using the statemanagers <code>routeTo</code> function.</p>
+<pre><code class="lang-coffeescript"><div class="highlight"><pre><span class="nx">Statemanager</span><span class="p">.</span><span class="nx">go</span> <span class="s">&#39;organizer.contacts.edit&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;contactid&#39;</span><span class="o">:</span> <span class="s">&#39;123&#39;</span><span class="p">}</span>
+</pre></div>
+
+</code></pre>
+<p>This resolves the <code>organizer.contacts.edit</code> state and changes the route to <code>/contacts/123/edit</code>.
+Switching states always goes the shortest activation path. This means, that the activation path traverses to the first mutual parent state, which does does not need reactivation
+due to parameters being changed. For example: when switching from the edit to the detail state, only the detail state gets activated and the edit state gets deactivated. When
+switching from the detail state to the calendar state however, all states up until the organizer state get deactivated and the calendar state gets activated.</p>
+<h2 id="getting-the-full-name-and-route-of-the-state">Getting the full name and route of the state</h2>
+<pre><code class="lang-coffeescript"><div class="highlight"><pre><span class="nx">editcontact</span><span class="p">.</span><span class="nx">getFullName</span><span class="p">()</span>   <span class="c1"># returns &#39;organizer.contact.edit&#39;</span>
+<span class="nx">editcontact</span><span class="p">.</span><span class="nx">getRouteString</span><span class="p">()</span>    <span class="c1"># returns &#39;/contacts/:contactid/edit&#39;</span>
+<span class="nx">editcontact</span><span class="p">.</span><span class="nx">getRoute</span> <span class="nv">contactid: </span><span class="mi">123</span> <span class="c1"># returns &#39;/contacts/123/edit&#39;</span>
+</pre></div>
+
+</code></pre>

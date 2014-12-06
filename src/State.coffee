@@ -1,8 +1,16 @@
+###
+  # State
+
+  The [Angular ui.router Team describes](https://github.com/angular-ui/ui-router/wiki) states as:
+  > ... a "place" in the application in terms of the overall UI and navigation.
+  This place is both
+
+###
 define [
-  'require'
   './StateManager'
+  'require'
   'underscore'
-], (require, StateManager, _) ->
+], (StateManager, require, _) ->
   'use strict'
   _.templateSettings =
     interpolate: /:([a-zA-Z0-9_]+)/g
@@ -11,12 +19,10 @@ define [
     isActive: false
 
     constructor: ()->
-      require './StateManager'
-      .registerState @
+      StateManager.registerState @
 
     doResolve: (parameters, parentResolveResults = {})->
       resultPromise = $.Deferred()
-      console.log 'resolving ' + this.generateName()
       unless @resolve
         resultPromise.resolve parentResolveResults
         return resultPromise
@@ -59,7 +65,6 @@ define [
       else
         resolvePromise.resolve @previousResolveResult
       activationPromise.then (resolveResult)=>
-        console.log 'activating ' + @generateName()
         @onActivate? parameters, resolveResult
       @currentParameters = parameters
       return resolvePromise
@@ -77,4 +82,11 @@ define [
       (if @parent && @parent.generateRouteString() then @parent.generateRouteString() + '/' else '/') + if @route then @route else ''
 
     generateName: ()->
-      (if @parent then @parent.generateName() + '.' else '') + @statename
+      (if @parent and @parent.statename then @parent.generateName() + '.' else '') + @statename
+
+    getParentChain: ->
+      unless @parent
+        return [@]
+      chain = @parent.getParentChain()
+      chain.push @
+      return chain
