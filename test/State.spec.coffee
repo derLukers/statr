@@ -24,6 +24,13 @@ define [
       statename: 'b'
       route: 'b'
       parent: bstate
+    bcstate = new class extends State
+      statename: 'c'
+      parent: bstate
+    bcastate = new class extends State
+      statename: 'a'
+      route: 'a'
+      parent: bcstate
 
     describe 'name generation', ->
       it 'should result in the correct name for state "a"', ->
@@ -55,3 +62,6 @@ define [
 
       it 'should result in the correct templating of the route for bastate', ->
         expect(bastate.generateRoute foo: 'foo').to.equal '/b/foo'
+
+      it 'should not generate repeating slashes, even if one state does not have a route', ->
+        expect(bcastate.generateRouteString()).not.to.match(/\/\//)
