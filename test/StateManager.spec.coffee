@@ -47,9 +47,9 @@ define [
         expect(StateManager.getState 'a.b.c').to.equal abcstate
 
       it 'should register the routes correctly', ->
-        expect(StateManager.router.route.getCall(0).args[0]).to.equal '/a'
-        expect(StateManager.router.route.getCall(1).args[0]).to.equal '/a/b'
-        expect(StateManager.router.route.getCall(2).args[0]).to.equal '/a/b/c'
+        expect(StateManager.router.route.getCall(0).args[0]).to.equal 'a'
+        expect(StateManager.router.route.getCall(1).args[0]).to.equal 'a/b'
+        expect(StateManager.router.route.getCall(2).args[0]).to.equal 'a/b/c'
 
       it 'should not register routes for abstract states', ->
         for call in StateManager.router.route.getCalls()
@@ -80,7 +80,7 @@ define [
         expect(StateManager.router.navigate.called).to.be.false
         StateManager.go bastate.generateName(), {foo: 'foo'}
         expect(StateManager.router.navigate.called).to.be.true
-        expect(StateManager.router.navigate.firstCall.args[0]).to.equal '/b/foo'
+        expect(StateManager.router.navigate.firstCall.args[0]).to.equal 'b/foo'
 
 
     describe 'clearing states', ->

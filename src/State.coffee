@@ -76,13 +76,13 @@ define [
       @currentChild = null
 
     generateRoute: (parameters)->
-      (@parent?.generateRoute(parameters) ? '') + if @route then '/'+_.template(@route)(parameters)
+      (if @parent?.generateRoute(parameters).length then @parent.generateRoute(parameters) + '/' else '') + if @route then _.template(@route)(parameters) else ''
 
     generateRouteString: ()->
-      (@parent?.generateRouteString() ? '') + if @route then '/'+@route else ''
+      (if @parent?.generateRouteString().length then @parent.generateRouteString() + (if @route then '/' else '') else '') + if @route then @route else ''
 
     generateName: ()->
-      (if @parent and @parent.statename then @parent.generateName() + '.' else '') + @statename
+      (if @parent?.statename then @parent.generateName() + '.' else '') + @statename
 
     getParentChain: ->
       unless @parent

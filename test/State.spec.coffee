@@ -48,20 +48,21 @@ define [
 
     describe 'route generation', ->
       it 'should result in the correct route for state "a"', ->
-        expect(astate.generateRouteString()).to.equal '/a'
+        expect(astate.generateRouteString()).to.equal 'a'
       it 'should result in the correct route for state "a.b"', ->
-        expect(abstate.generateRouteString()).to.equal '/a/b'
+        expect(abstate.generateRouteString()).to.equal 'a/b'
       it 'should result in the correct route for state "a.b.c"', ->
-        expect(abcstate.generateRouteString()).to.equal '/a/b/c'
+        expect(abcstate.generateRouteString()).to.equal 'a/b/c'
       it 'should result in the correct route for state "b"', ->
-        expect(bstate.generateRouteString()).to.equal '/b'
+        expect(bstate.generateRouteString()).to.equal 'b'
       it 'should result in the correct route for state "b.a"', ->
-        expect(bastate.generateRouteString()).to.equal '/b/:foo'
+        expect(bastate.generateRouteString()).to.equal 'b/:foo'
       it 'should result in the correct route for state "b.b"', ->
-        expect(bbstate.generateRouteString()).to.equal '/b/b'
+        expect(bbstate.generateRouteString()).to.equal 'b/b'
 
       it 'should result in the correct templating of the route for bastate', ->
-        expect(bastate.generateRoute foo: 'foo').to.equal '/b/foo'
+        console.log bastate.generateRoute foo: 'foo'
+        expect(bastate.generateRoute foo: 'foo').to.equal 'b/foo'
 
       it 'should not generate repeating slashes, even if one state does not have a route', ->
         expect(bcastate.generateRouteString()).not.to.match(/\/\//)
