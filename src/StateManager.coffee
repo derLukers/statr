@@ -30,7 +30,7 @@
       if states[state.generateName()]
         throw new Error('State with name "' + name + '" already exists.')
       states[state.generateName()] = state
-      if state.route && !state.abstract
+      if (state.route or state.route=='') && !state.abstract
         @router.route state.generateRouteString(), state.generateName(),
           (parameters)->
             _arguments = arguments

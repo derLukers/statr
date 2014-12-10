@@ -10,6 +10,7 @@ define [
     bstate = null
     bastate = null
     bbstate = null
+    cstate = null
 
     beforeEach ->
       StateManager.router =
@@ -39,6 +40,9 @@ define [
         statename: 'b'
         route: 'b'
         parent: bstate
+      cstate = new class extends State
+        statename: 'c'
+        route: ''
 
     describe 'registering states', ->
       it 'should be able to return states', ->
@@ -50,6 +54,7 @@ define [
         expect(StateManager.router.route.getCall(0).args[0]).to.equal 'a'
         expect(StateManager.router.route.getCall(1).args[0]).to.equal 'a/b'
         expect(StateManager.router.route.getCall(2).args[0]).to.equal 'a/b/c'
+        expect(StateManager.router.route.getCall(5).args[0]).to.equal ''
 
       it 'should not register routes for abstract states', ->
         for call in StateManager.router.route.getCalls()
