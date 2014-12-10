@@ -1,10 +1,21 @@
-define [
-  'underscore', 'backbone'
-], (_, backbone) ->
-  window.foo = new class StateManager
+((root, factory)->
+  if typeof define == 'function' and define.amd
+    define 'StateManager', ['underscore', 'backbone'], (_, Backbone)->
+      root.StateManager = new (factory _, Backbone)
+    return
+  else if typeof exports != 'undefined'
+    _ = require 'underscore'
+    Backbone = require 'Backbone'
+    exports.StateManager = new (factory _, Backbone)
+    if typeof module != 'undefined' and module.exports
+      exports = module.exports = new StateManager
+  else
+    root.StateManager = new (factory _, Backbone)
+)(this, (_, Backbone) ->
+  class StateManager
     states = {}
     activeState = null
-    router: new backbone.Router()
+    router: new Backbone.Router()
     go: (name, parameters, options = {navigate: true}) ->
       unless states[name]
         throw new Error 'No State with name "' + name + "' found."
@@ -39,3 +50,4 @@ define [
 
     constructor: ->
       @clear()
+)

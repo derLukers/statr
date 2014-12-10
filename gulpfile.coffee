@@ -7,6 +7,9 @@ markdown = require 'gulp-markdown'
 watch = require 'gulp-watch'
 sourcemaps = require 'gulp-sourcemaps'
 coffeelint = require 'gulp-coffeelint'
+uglify = require 'gulp-uglify'
+concat = require 'gulp-concat'
+rename = require 'gulp-rename'
 
 gulp.task 'clean', ->
   gulp.src ['./.tmp', './dist']
@@ -25,6 +28,14 @@ gulp.task 'coffeeTest', ['clean'], ->
   .pipe coffee bare: true
   .pipe sourcemaps.write()
   .pipe gulp.dest './.tmp/test/'
+
+gulp.task 'minify', ['coffee'], ->
+  gulp.src './dist/*.js'
+  .pipe concat 'backbone.stateful.js'
+  .pipe gulp.dest './dist/'
+  .pipe uglify()
+  .pipe rename 'backbone.stateful.min.js'
+  .pipe gulp.dest './dist/'
 
 gulp.task 'lint', [], ->
   gulp.src ['./src/*.coffee', './gulpfile.coffee']
@@ -52,4 +63,4 @@ gulp.task 'watchDoc', ->
   gulp.watch('./doc/**/*.md', ['doc'])
 
 
-gulp.task 'default', ['coffee', 'test', 'doc']
+gulp.task 'default', ['coffee', 'minify', 'test', 'doc']

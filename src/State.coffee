@@ -1,8 +1,17 @@
-define [
-  './StateManager'
-  'require'
-  'underscore'
-], (StateManager, require, _) ->
+((root, factory)->
+  if typeof define == 'function' and define.amd
+    define 'State', ['StateManager', 'underscore'], (StateManager, _)->
+      root.State = (factory StateManager, _)
+    return
+  else if typeof exports != 'undefined'
+    StateManager = require 'StateManager'
+    _ = require 'underscore'
+    exports.State = (factory StateManager, _)
+    if typeof module != 'undefined' and module.exports
+      exports = module.exports = (factory StateManager, _)
+  else
+    root.State = (factory StateManager, _)
+)(this, (StateManager, _) ->
   'use strict'
   _.templateSettings =
     interpolate: /:([a-zA-Z0-9_]+)/g
@@ -80,3 +89,4 @@ define [
       chain = @parent?.getParentChain() or []
       chain.push @
       return chain
+)

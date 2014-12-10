@@ -1,6 +1,6 @@
 define [
-  'dist/StateManager'
-  'dist/State'
+  'StateManager'
+  'State'
 ], (StateManager, State)->
   expect = chai.expect
   describe 'StateManager', ->

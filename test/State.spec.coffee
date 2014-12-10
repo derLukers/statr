@@ -1,5 +1,5 @@
 define [
-  'dist/State'
+  'State'
 ], (State)->
   describe 'State', ->
     astate = new class extends State
