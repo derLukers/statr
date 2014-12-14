@@ -10,13 +10,13 @@ module.exports = (config) ->
 
     files: [
       './test-main.coffee',
-      {pattern: './dist/*.js', included: false},
-      {pattern: './test/*.coffee', included: false}
-      {pattern: './bower_components/*/*.js', included: false}
-      {pattern: './bower_components/jquery/dist/jquery.js', included: false}
+      {pattern: 'src/*.coffee', included: false},
+      {pattern: 'test/*.coffee', included: false}
+      {pattern: 'bower_components/*/*.js', included: false}
+      {pattern: 'bower_components/jquery/dist/jquery.js', included: false}
     ]
 
-    reporters: ['progress', 'dots', 'html']
+    reporters: ['progress', 'dots', 'html', 'coverage']
 
     port: 9876
 
@@ -26,9 +26,25 @@ module.exports = (config) ->
 
     autoWatch: true
 
-    browsers: ['Chrome']
+    browsers: ['PhantomJS']
 
     singleRun: false
 
+    coverageReporter:
+      dir: 'coverage'
+      reporters: [
+        {type: 'cobertura', subdir: 'report-cobertura'}
+        {type: 'html', subdir: 'report-html'}
+        {type: 'lcovonly', subdir: 'report-lcov'}
+        {type: 'text-summary'}
+      ]
+
+    coffeePreprocessor:
+      options:
+        bare: true
+        sourceMap: true
+
     preprocessors:
-      '**/*.coffee': ['coffee']
+      'test/*.coffee': ['coffee', 'sourcemap']
+      'test-main.coffee': ['coffee', 'sourcemap']
+      'src/*.coffee': ['coverage', 'sourcemap']

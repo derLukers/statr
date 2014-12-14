@@ -5,6 +5,7 @@
 # build
 .tmp
 karma_html
+coverage
 
 # libs
 bower_components

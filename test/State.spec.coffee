@@ -61,7 +61,26 @@ define [
         expect(bbstate.generateRouteString()).to.equal 'b/b'
 
       it 'should result in the correct templating of the route for bastate', ->
-        expect(bastate.generateRoute foo: 'foo').to.equal 'b/foo'
+        expect(bastate.generateRoute foo: 'abc').to.equal 'b/abc'
 
       it 'should not generate repeating slashes, even if one state does not have a route', ->
         expect(bcastate.generateRouteString()).not.to.match(/\/\//)
+
+    describe 'promise handling', ->
+      it 'should resolve the states promises beforehand', ->
+        promise1 = $.Deferred()
+
+        promiseTestState = new class extends State
+          resolve:
+            promise1: ->
+              promise1
+
+        expect(promiseTestState.isActive).not.to.be.true
+
+        promiseTestState.activate()
+
+        expect(promiseTestState.isActive).not.to.be.true
+
+        promise1.resolve()
+
+        expect(promiseTestState.isActive).to.be.true

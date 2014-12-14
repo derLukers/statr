@@ -87,6 +87,22 @@ define [
         expect(StateManager.router.navigate.called).to.be.true
         expect(StateManager.router.navigate.firstCall.args[0]).to.equal 'b/foo'
 
+    describe 'deactivating states', ->
+      it 'should not be declared as active, when deactivated', ->
+        abcstate.activate()
+        expect(abcstate.isActive).to.be.true
+        abcstate.deactivate()
+        expect(abcstate.isActive).to.be.false
+
+      it 'should deactivate all substates, when being deactivated', ->
+        abcstate.activate()
+        expect(astate.isActive).to.be.true
+        expect(abstate.isActive).to.be.true
+        expect(abcstate.isActive).to.be.true
+        astate.deactivate()
+        expect(astate.isActive).to.be.false
+        expect(abstate.isActive).to.be.false
+        expect(abcstate.isActive).to.be.false
 
     describe 'clearing states', ->
       it 'must be able to clear states', ->

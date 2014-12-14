@@ -22,8 +22,8 @@ require.config
     backbone: 'bower_components/backbone/backbone'
     jquery: 'bower_components/jquery/dist/jquery'
     underscore: 'bower_components/underscore/underscore'
-    State: 'dist/State'
-    StateManager: 'dist/StateManager'
+    State: 'src/State'
+    StateManager: 'src/StateManager'
 
   shim:
     underscore:
