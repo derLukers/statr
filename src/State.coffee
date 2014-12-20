@@ -21,6 +21,13 @@
 
     return result
 
+  defer = ()->
+    result = {}
+    result.promise = new Promise (resolve, reject)->
+      result.resolve = resolve
+      result.reject = reject
+    return result
+
   class State
     isActive: false
 
@@ -30,28 +37,28 @@
     insertParameters: insertParameters
 
     doResolve: (parameters, parentResolveResults={}) ->
-      resultPromise = $.Deferred()
-      unless @resolve
-        resultPromise.resolve parentResolveResults
-        return resultPromise
-      else
-        subPromiseList = []
-        for name, resolveFunction of @resolve
-          deferred = resolveFunction parameters, parentResolveResults
-          deferred.name = name
-          subPromiseList.push deferred
-        ($.when.apply $, subPromiseList).then ->
-          for index, subPromise of subPromiseList
-            parentResolveResults[subPromise.name] = arguments[index]
-          resultPromise.resolve parentResolveResults
+      resultPromise = new Promise (resolve, reject)=>
+        unless @resolve
+          resolve parentResolveResults
+          return resultPromise
+        else
+          subPromiseList = []
+          for name, resolveFunction of @resolve
+            deferred = resolveFunction parameters, parentResolveResults
+            deferred.name = name
+            subPromiseList.push deferred
+          (Promise.all subPromiseList).then =>
+            for index, subPromise of subPromiseList
+              parentResolveResults[subPromise.name] = arguments[index]
+            resolve parentResolveResults
       return resultPromise
 
-    activate: (parameters, child=null, activationPromise=$.Deferred()) ->
+    activate: (parameters, child=null, activationPromise=defer()) ->
       initial = child == null
-      resolvePromise = $.Deferred()
+      resolvePromise = defer()
 
       if initial
-        resolvePromise.then (resolveResult) ->
+        resolvePromise.promise.then (resolveResult) ->
           activationPromise.resolve resolveResult
 
       unless @currentChild == child
@@ -75,13 +82,13 @@
       else
         resolvePromise.resolve @previousResolveResult
 
-      activationPromise.then (resolveResult) =>
+      activationPromise.promise.then (resolveResult) =>
         @currentChild = child
         @isActive = true
         @onActivate? parameters, resolveResult
 
       @currentParameters = parameters
-      return resolvePromise
+      return resolvePromise.promise
 
     deactivate: ->
       @isActive = false

@@ -1,6 +1,17 @@
 define [
   'State'
-], (State)->
+  'es6-promise'
+], (State, es6promise)->
+  window.Promise = es6promise.Promise
+  chai.config.includeStack = true;
+
+  defer = ()->
+    result = {}
+    result.promise = new Promise (resolve, reject)->
+      result.resolve = resolve
+      result.reject = reject
+    return result
+
   describe 'State', ->
     astate = new class extends State
       statename: 'a'
@@ -67,13 +78,13 @@ define [
         expect(bcastate.generateRouteString()).not.to.match(/\/\//)
 
     describe 'promise handling', ->
-      it 'should resolve the states promises beforehand', ->
-        promise1 = $.Deferred()
+      it 'should resolve the states promises beforehand', (done)->
+        deferred1 = defer()
 
         promiseTestState = new class extends State
           resolve:
             promise1: ->
-              promise1
+              deferred1.promise
 
         expect(promiseTestState.isActive).not.to.be.true
 
@@ -81,6 +92,9 @@ define [
 
         expect(promiseTestState.isActive).not.to.be.true
 
-        promise1.resolve()
+        deferred1.resolve()
 
-        expect(promiseTestState.isActive).to.be.true
+        setTimeout ->
+          expect(promiseTestState.isActive).to.be.true
+          done()
+        , 0

@@ -1,8 +1,14 @@
 define [
   'StateManager'
   'State'
-], (StateManager, State)->
-  expect = chai.expect
+  'es6-promise'
+], (StateManager, State, es6promise)->
+  window.Promise = es6promise.Promise
+  chai.config.includeStack = true;
+
+  async = (cb)->
+    setTimeout cb, 0
+
   describe 'StateManager', ->
     astate = null
     abstate = null
@@ -64,21 +70,28 @@ define [
         expect(-> StateManager.registerState generateName: sinon.stub().returns 'a').to.throw 'State with name "a" already exists.'
 
     describe 'navigating to states', ->
-      it 'should activate the correct state on the go function', ->
+      it 'should activate the correct state on the go function', (done)->
         StateManager.go bbstate.generateName()
-        expect(bbstate.isActive).to.be.true
-        expect(bstate.isActive).to.be.true
-        expect(bastate.isActive).to.be.false
 
-      it 'should deactivate states, when switching between them', ->
+        async ->
+          expect(bbstate.isActive).to.be.true
+          expect(bstate.isActive).to.be.true
+          expect(bastate.isActive).to.be.false
+          done()
+
+      it 'should deactivate states, when switching between them', (done)->
         StateManager.go bbstate.generateName()
-        expect(bbstate.isActive).to.be.true
-        expect(bstate.isActive).to.be.true
-        expect(bastate.isActive).to.be.false
-        StateManager.go bastate.generateName(), foo: 'foo'
-        expect(bastate.isActive).to.be.true
-        expect(bstate.isActive).to.be.true
-        expect(bbstate.isActive).to.be.false
+
+        async ->
+          expect(bbstate.isActive).to.be.true
+          expect(bstate.isActive).to.be.true
+          expect(bastate.isActive).to.be.false
+          StateManager.go bastate.generateName(), foo: 'foo'
+          async ->
+            expect(bastate.isActive).to.be.true
+            expect(bstate.isActive).to.be.true
+            expect(bbstate.isActive).to.be.false
+            done()
 
       it 'should route the browser to the correct url if the route navigate', ->
         StateManager.go bbstate.generateName(), null, {navigate: false}
@@ -88,21 +101,25 @@ define [
         expect(StateManager.router.navigate.firstCall.args[0]).to.equal 'b/foo'
 
     describe 'deactivating states', ->
-      it 'should not be declared as active, when deactivated', ->
+      it 'should not be declared as active, when deactivated', (done)->
         abcstate.activate()
-        expect(abcstate.isActive).to.be.true
-        abcstate.deactivate()
-        expect(abcstate.isActive).to.be.false
+        async ->
+          expect(abcstate.isActive).to.be.true
+          abcstate.deactivate()
+          expect(abcstate.isActive).to.be.false
+          done()
 
-      it 'should deactivate all substates, when being deactivated', ->
+      it 'should deactivate all substates, when being deactivated', (done)->
         abcstate.activate()
-        expect(astate.isActive).to.be.true
-        expect(abstate.isActive).to.be.true
-        expect(abcstate.isActive).to.be.true
-        astate.deactivate()
-        expect(astate.isActive).to.be.false
-        expect(abstate.isActive).to.be.false
-        expect(abcstate.isActive).to.be.false
+        async ->
+          expect(astate.isActive).to.be.true
+          expect(abstate.isActive).to.be.true
+          expect(abcstate.isActive).to.be.true
+          astate.deactivate()
+          expect(astate.isActive).to.be.false
+          expect(abstate.isActive).to.be.false
+          expect(abcstate.isActive).to.be.false
+          done()
 
     describe 'clearing states', ->
       it 'must be able to clear states', ->
