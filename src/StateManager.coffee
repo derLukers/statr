@@ -1,17 +1,5 @@
-((root, factory)->
-  if typeof define == 'function' and define.amd
-    define 'StateManager', ['backbone'], (Backbone)->
-      root.StateManager = new (factory Backbone)
-    return
-  else if typeof exports != 'undefined'
-    Backbone = require 'Backbone'
-    exports.StateManager = new (factory  Backbone)
-    if typeof module != 'undefined' and module.exports
-      exports = module.exports = new StateManager
-  else
-    root.StateManager = new (factory Backbone)
-) this, (Backbone) ->
-  class StateManager
+define 'StateManager', ['backbone'], (Backbone)->
+  new class StateManager
     states = {}
     activeState = null
     router: new Backbone.Router()

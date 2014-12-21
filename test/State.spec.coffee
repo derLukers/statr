@@ -2,7 +2,8 @@ define [
   'State'
   'es6-promise'
 ], (State, es6promise)->
-  window.Promise = es6promise.Promise
+#  window.Promise = es6promise.Promise
+  es6promise.polyfill()
   chai.config.includeStack = true;
 
   defer = ()->
@@ -11,6 +12,9 @@ define [
       result.resolve = resolve
       result.reject = reject
     return result
+
+  async = (cb)->
+    setTimeout cb, 0
 
   describe 'State', ->
     astate = new class extends State
@@ -98,3 +102,27 @@ define [
           expect(promiseTestState.isActive).to.be.true
           done()
         , 0
+
+    describe 'deactivating states', ->
+      it 'should deactivate all substates, when being deactivated', (done)->
+        abcstate.activate()
+        async ->
+          expect(astate.isActive).to.be.true
+          expect(abstate.isActive).to.be.true
+          expect(abcstate.isActive).to.be.true
+          astate.deactivate()
+          expect(astate.isActive).to.be.false
+          expect(abstate.isActive).to.be.false
+          expect(abcstate.isActive).to.be.false
+          done()
+
+      it 'should call the on deactivate function, when a state is deactivated', ->
+        astate.onDeactivate = sinon.spy()
+        abcstate.onDeactivate = sinon.spy()
+        abcstate.activate()
+
+        async ->
+          astate.deactivate()
+          expect(astate.isActive).not.to.be.true
+          expect(astate.onDeactivate.called).to.be.true
+          expect(abcstate.isActive).not.to.be.true

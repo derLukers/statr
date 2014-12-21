@@ -12,7 +12,7 @@ concat = require 'gulp-concat'
 rename = require 'gulp-rename'
 
 gulp.task 'clean', ->
-  gulp.src ['./.tmp', './dist']
+  gulp.src ['./.tmp', './dist', './karma_html', 'coverage']
   .pipe clean()
 
 gulp.task 'coffee', ['lint', 'clean'], ->
@@ -42,7 +42,7 @@ gulp.task 'lint', [], ->
   .pipe coffeelint()
   .pipe coffeelint.reporter()
 
-gulp.task 'test', ['coffee', 'coffeeTest'], (done)->
+gulp.task 'test', ['clean', 'coffee', 'coffeeTest'], (done)->
   karma.start {
     configFile: 'karma.conf.coffee',
     singleRun: true

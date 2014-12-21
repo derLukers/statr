@@ -95,36 +95,14 @@ define [
 
       it 'should route the browser to the correct url if the route navigate', ->
         StateManager.go bbstate.generateName(), null, {navigate: false}
-        expect(StateManager.router.navigate.called).to.be.false
-        StateManager.go bastate.generateName(), {foo: 'foo'}
-        expect(StateManager.router.navigate.called).to.be.true
-        expect(StateManager.router.navigate.firstCall.args[0]).to.equal 'b/foo'
-
-    describe 'deactivating states', ->
-      it 'should not be declared as active, when deactivated', (done)->
-        abcstate.activate()
         async ->
-          expect(abcstate.isActive).to.be.true
-          abcstate.deactivate()
-          expect(abcstate.isActive).to.be.false
-          done()
-
-      it 'should deactivate all substates, when being deactivated', (done)->
-        abcstate.activate()
-        async ->
-          expect(astate.isActive).to.be.true
-          expect(abstate.isActive).to.be.true
-          expect(abcstate.isActive).to.be.true
-          astate.deactivate()
-          expect(astate.isActive).to.be.false
-          expect(abstate.isActive).to.be.false
-          expect(abcstate.isActive).to.be.false
-          done()
+          expect(StateManager.router.navigate.called).to.be.false
+          StateManager.go bastate.generateName(), {foo: 'foo'}
+          async ->
+            expect(StateManager.router.navigate.called).to.be.true
+            expect(StateManager.router.navigate.firstCall.args[0]).to.equal 'b/foo'
 
     describe 'clearing states', ->
-      it 'must be able to clear states', ->
-        StateManager.clear()
-        expect(StateManager.getState(astate.generateName())).to.equal undefined
 
       it 'must deactivate the current active chain of states', ->
         StateManager.go bbstate.generateName()

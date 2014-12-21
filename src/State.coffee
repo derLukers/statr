@@ -1,16 +1,4 @@
-((root, factory) ->
-  if typeof define == 'function' and define.amd
-    define 'State', ['StateManager'], (StateManager) ->
-      root.State = (factory StateManager)
-    return
-  else if typeof exports != 'undefined'
-    StateManager = require 'StateManager'
-    exports.State = (factory StateManager)
-    if typeof module != 'undefined' and module.exports
-      exports = module.exports = (factory StateManager)
-  else
-    root.State = (factory StateManager)
-) @, (StateManager) ->
+define 'State', ['StateManager'], (StateManager) ->
   'use strict'
 
   insertParameters = (string, parameters)->
