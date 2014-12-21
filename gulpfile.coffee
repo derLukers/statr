@@ -1,6 +1,5 @@
 gulp = require 'gulp'
 coffee = require 'gulp-coffee'
-mocha = require 'gulp-mocha'
 clean = require 'gulp-clean'
 karma = require('karma').server
 markdown = require 'gulp-markdown'
