@@ -86,6 +86,7 @@ define [
         deferred1 = defer()
 
         promiseTestState = new class extends State
+          route: ''
           resolve:
             promise1: ->
               deferred1.promise
@@ -93,15 +94,15 @@ define [
         expect(promiseTestState.isActive).not.to.be.true
 
         promiseTestState.activate()
+        .then ->
+          setTimeout ->
+            expect(promiseTestState.isActive).to.be.true
+            done()
+          , 0
 
         expect(promiseTestState.isActive).not.to.be.true
 
         deferred1.resolve()
-
-        setTimeout ->
-          expect(promiseTestState.isActive).to.be.true
-          done()
-        , 0
 
     describe 'deactivating states', ->
       it 'should deactivate all substates, when being deactivated', (done)->

@@ -22,9 +22,10 @@ define 'StateManager', ['backbone'], (Backbone)->
           ->
             _arguments = arguments
             parameters = {}
-            for name, index in (
-              state.generateRouteString().match(/:([a-zA-Z0-9\-_]+)/g))
-              parameters[name.substring(1)] = _arguments[index]
+            matches = state.generateRouteString().match(/:([a-zA-Z0-9\-_]+)/g)
+            if matches
+              for name, index in matches
+                parameters[name.substring(1)] = _arguments[index]
             state.activate parameters
 
     getState: (name)->
