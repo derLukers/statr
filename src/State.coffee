@@ -35,7 +35,7 @@ define 'State', ['StateManager'], (StateManager) ->
             deferred = resolveFunction parameters, parentResolveResults
             deferred.name = name
             subPromiseList.push deferred
-          (Promise.all subPromiseList).then =>
+          (Promise.all subPromiseList).then ->
             for index, subPromise of subPromiseList
               parentResolveResults[subPromise.name] = arguments[index]
             resolve parentResolveResults
@@ -53,14 +53,15 @@ define 'State', ['StateManager'], (StateManager) ->
         @currentChild?.deactivate()
         @currentChild = child
 
-      unless @isActive and @generateRoute(@currentParameters) == @generateRoute(parameters)
+      unless @isActive and (
+        @generateRoute @currentParameters == @generateRoute parameters)
         if @parent
           @parent.activate parameters, @, activationPromise
-          .then (parentResolveResult) =>
-            @doResolve parameters, parentResolveResult
-            .then (resolveResult) =>
-              @previousResolveResult = resolveResult
-              resolvePromise.resolve resolveResult
+            .then (parentResolveResult) =>
+              @doResolve parameters, parentResolveResult
+                .then (resolveResult) =>
+                  @previousResolveResult = resolveResult
+                  resolvePromise.resolve resolveResult
         else
           @doResolve parameters
           .then (resolveResult) =>
@@ -85,11 +86,13 @@ define 'State', ['StateManager'], (StateManager) ->
       @currentChild = null
 
     generateRoute: (parameters) ->
-      "#{[@parent.generateRoute(parameters) + '/' if @parent?.generateRoute(parameters).length]}" +
+      "#{[@parent.generateRoute(parameters) +
+            '/' if @parent?.generateRoute(parameters).length]}" +
       "#{[insertParameters(@route, parameters) if @route]}"
 
     generateRouteString: ->
-      "#{["#{@parent.generateRouteString()}#{'/' if @route}" if @parent?.generateRouteString().length]}#{[@route]}"
+      "#{["#{@parent.generateRouteString()}#{'/' if @route}
+      "if @parent?.generateRouteString().length]}#{[@route]}"
 
     generateName: ->
       "#{[@parent.generateName() + '.' if @parent?.statename]}#{@statename}"
