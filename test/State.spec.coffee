@@ -13,9 +13,6 @@ define [
       result.reject = reject
     return result
 
-  async = (cb)->
-    setTimeout cb, 0
-
   describe 'State', ->
     astate = new class extends State
       statename: 'a'
@@ -28,6 +25,14 @@ define [
       statename: 'c'
       route: 'c'
       parent: abstate
+    abcdstate = new class extends State
+      statename: 'd'
+      route: 'd'
+      parent: abcstate
+    abcdestate = new class extends State
+      statename: 'e'
+      route: 'e'
+      parent: abcdstate
     bstate = new class extends State
       statename: 'b'
       route: 'b'
@@ -82,32 +87,29 @@ define [
         expect(bcastate.generateRouteString()).not.to.match(/\/\//)
 
     describe 'promise handling', ->
-      it 'should resolve the states promises beforehand', (done)->
+      it 'should resolve the states promises beforehand', ()->
         deferred1 = defer()
 
         promiseTestState = new class extends State
           route: ''
           resolve:
             promise1: ->
-              deferred1.promise
+              return deferred1.promise
 
         expect(promiseTestState.isActive).not.to.be.true
 
         promiseTestState.activate()
         .then ->
-          setTimeout ->
-            expect(promiseTestState.isActive).to.be.true
-            done()
-          , 0
+          expect(promiseTestState.isActive).to.be.true
 
         expect(promiseTestState.isActive).not.to.be.true
 
-        deferred1.resolve()
+        deferred1.resolve('asd')
 
     describe 'deactivating states', ->
-      it 'should deactivate all substates, when being deactivated', (done)->
-        abcstate.activate()
-        async ->
+      it 'should deactivate all substates, when being deactivated', ()->
+        abcdestate.activate()
+        .then ->
           expect(astate.isActive).to.be.true
           expect(abstate.isActive).to.be.true
           expect(abcstate.isActive).to.be.true
@@ -115,14 +117,12 @@ define [
           expect(astate.isActive).to.be.false
           expect(abstate.isActive).to.be.false
           expect(abcstate.isActive).to.be.false
-          done()
 
-      it 'should call the on deactivate function, when a state is deactivated', ->
+      it 'should call the on deactivate function, when a state is deactivated', ()->
         astate.onDeactivate = sinon.spy()
         abcstate.onDeactivate = sinon.spy()
         abcstate.activate()
-
-        async ->
+        .then ->
           astate.deactivate()
           expect(astate.isActive).not.to.be.true
           expect(astate.onDeactivate.called).to.be.true

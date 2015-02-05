@@ -7,10 +7,11 @@ define 'StateManager', ['backbone'], (Backbone)->
       unless states[name]
         throw new Error 'No State with name "' + name + "' found."
       state = states[name]
-      state.activate parameters
+      result = state.activate parameters
       activeState = state
       if options.navigate && !state.abstract && state.route
         @router.navigate state.generateRoute parameters
+      return result
 
     registerState: (state) ->
       name = state.generateName()
@@ -26,7 +27,7 @@ define 'StateManager', ['backbone'], (Backbone)->
             if matches
               for name, index in matches
                 parameters[name.substring(1)] = _arguments[index]
-            state.activate parameters
+            return state.activate parameters
 
     getState: (name)->
       states[name]

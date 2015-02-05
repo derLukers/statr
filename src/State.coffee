@@ -25,64 +25,70 @@ define 'State', ['StateManager'], (StateManager) ->
     insertParameters: insertParameters
 
     doResolve: (parameters, parentResolveResults={}) ->
-      resultPromise = new Promise (resolve, reject)=>
-        unless @resolve
-          resolve parentResolveResults
-          return resultPromise
-        else
-          subPromiseList = []
-          for name, resolveFunction of @resolve
-            deferred = resolveFunction parameters, parentResolveResults
-            deferred.name = name
-            subPromiseList.push deferred
-          (Promise.all subPromiseList).then ->
-            for index, subPromise of subPromiseList
-              parentResolveResults[subPromise.name] = arguments[index]
-            resolve parentResolveResults
-      return resultPromise
+      resultPromise = defer()
+      unless @resolve
+        resultPromise.resolve(parentResolveResults)
+        return resultPromise.promise
+      else
+        subPromiseList = []
+        for name, resolveFunction of @resolve
+          deferred = resolveFunction parameters, parentResolveResults
+          deferred.name = name
+          subPromiseList.push deferred
+        Promise.all(subPromiseList).then ->
+          for index, subPromise of subPromiseList
+            parentResolveResults[subPromise.name] = arguments[index]
+          @previousResolveResult = parentResolveResults
+          resultPromise.resolve(parentResolveResults)
+      return resultPromise.promise
 
-    activate: (parameters, child=null, activationPromise=defer()) ->
+    activate: (parameters, child=null, resolvePromise=defer())->
       initial = child == null
-      resolvePromise = defer()
-
-      if initial
-        resolvePromise.promise.then (resolveResult) ->
-          activationPromise.resolve resolveResult
+      innerResolvePromise = defer()
+      activationPromise = defer()
 
       unless @currentChild == child
         @currentChild?.deactivate()
         @currentChild = child
 
-      unless @isActive and (
-        @generateRoute @currentParameters == @generateRoute parameters)
-        if @parent
-          @parent.activate parameters, @, activationPromise
-            .then (parentResolveResult) =>
-              @doResolve parameters, parentResolveResult
-                .then (resolveResult) =>
-                  @previousResolveResult = resolveResult
-                  resolvePromise.resolve resolveResult
-        else
-          @doResolve parameters
-          .then (resolveResult) =>
-            @previousResolveResult = resolveResult
-            resolvePromise.resolve resolveResult
+      if initial
+        innerResolvePromise.promise.then resolvePromise.resolve, resolvePromise.reject
 
-      else
-        resolvePromise.resolve @previousResolveResult
+      innerResolvePromise.promise.then ()=>
+        @previousResolveResult = resolveResult
 
-      activationPromise.promise.then (resolveResult) =>
+      resolvePromise.promise.then ()=>
         @currentChild = child
         @isActive = true
-        @onActivate? parameters, resolveResult
+        @currentParams = parameters
 
-      @currentParameters = parameters
-      return resolvePromise.promise
+      unless @isActive and @paramsUnchanged(parameters)
+        if @parent
+          parentActivateResult = @parent.activate(parameters, @, resolvePromise)
+          parentActivateResult[0].then (resolveResults)=>
+            @doResolve(parameters, resolveResults).then innerResolvePromise.resolve, innerResolvePromise.reject
+          parentActivateResult[1].then (resolveResults)=>
+            @onActivate?(parameters, resolveResults)
+            activationPromise.resolve(resolveResults)
+        else
+          @doResolve(parameters).then innerResolvePromise.resolve
+          resolvePromise.promise.then (resolveResults)=>
+            @onActivate?(parameters, resolveResults)
+            activationPromise.resolve(resolveResults)
+      else
+        innerResolvePromise.resolve @previousResolveResult
+        resolvePromise.promise.then activationPromise.resolve, activationPromise.reject
+
+      unless initial
+        return [innerResolvePromise.promise, activationPromise.promise]
+      return activationPromise.promise
+
+    paramsUnchanged: (params)-> [params[name] == value for name, value in @currentParams].every (x)->x==true
 
     deactivate: ->
       @isActive = false
-      @onDeactivate?()
       @currentChild?.deactivate()
+      @onDeactivate?()
       @currentChild = null
 
     generateRoute: (parameters) ->
