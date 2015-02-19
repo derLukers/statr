@@ -1,14 +1,6 @@
 define 'State', ['StateManager'], (StateManager) ->
   'use strict'
 
-  insertParameters = (string, parameters)->
-    result = string
-
-    for parameter, value of parameters
-      result = result.replace ":#{parameter}", value
-
-    return result
-
   defer = ()->
     result = {}
     result.promise = new Promise (resolve, reject)->
@@ -22,7 +14,7 @@ define 'State', ['StateManager'], (StateManager) ->
     constructor: ->
       StateManager.registerState @
 
-    insertParameters: insertParameters
+    activationHooks: []
 
     doResolve: (parameters, parentResolveResults={}) ->
       resultPromise = defer()
@@ -32,10 +24,10 @@ define 'State', ['StateManager'], (StateManager) ->
       else
         subPromiseList = []
         for name, resolveFunction of @resolve
-          deferred = resolveFunction parameters, parentResolveResults
-          deferred.name = name
-          subPromiseList.push deferred
-        Promise.all(subPromiseList).then ->
+          resolveResult = resolveFunction(parameters, parentResolveResults) || {}
+          resolveResult.name = name
+          subPromiseList.push resolveResult
+        Promise.all(subPromiseList).then =>
           for index, subPromise of subPromiseList
             parentResolveResults[subPromise.name] = arguments[index]
           @previousResolveResult = parentResolveResults
@@ -54,10 +46,10 @@ define 'State', ['StateManager'], (StateManager) ->
       if initial
         innerResolvePromise.promise.then resolvePromise.resolve, resolvePromise.reject
 
-      innerResolvePromise.promise.then ()=>
+      innerResolvePromise.promise.then (resolveResult)=>
         @previousResolveResult = resolveResult
 
-      resolvePromise.promise.then ()=>
+      activationPromise.promise.then ()=>
         @currentChild = child
         @isActive = true
         @currentParams = parameters
@@ -68,13 +60,13 @@ define 'State', ['StateManager'], (StateManager) ->
           parentActivateResult[0].then (resolveResults)=>
             @doResolve(parameters, resolveResults).then innerResolvePromise.resolve, innerResolvePromise.reject
           parentActivateResult[1].then (resolveResults)=>
-            @onActivate?(parameters, resolveResults)
-            activationPromise.resolve(resolveResults)
+            @executeActivationHooks(parameters, resolveResults)
+            .then activationPromise.resolve, activationPromise.reject
         else
           @doResolve(parameters).then innerResolvePromise.resolve
           resolvePromise.promise.then (resolveResults)=>
-            @onActivate?(parameters, resolveResults)
-            activationPromise.resolve(resolveResults)
+            @executeActivationHooks(parameters, resolveResults)
+            .then activationPromise.resolve, activationPromise.reject
       else
         innerResolvePromise.resolve @previousResolveResult
         resolvePromise.promise.then activationPromise.resolve, activationPromise.reject
@@ -83,7 +75,14 @@ define 'State', ['StateManager'], (StateManager) ->
         return [innerResolvePromise.promise, activationPromise.promise]
       return activationPromise.promise
 
-    paramsUnchanged: (params)-> [params[name] == value for name, value in @currentParams].every (x)->x==true
+    paramsUnchanged: (params, currentParams = @currentParams || {})->
+      unless params
+        return true
+      return [params[name] == value for name, value in currentParams].every (x)->x==true
+
+    executeActivationHooks: (params, resolveResults) ->
+      hookpromises = [hook(params, resolveResults) for hook in @activationHooks]
+      return Promise.all(hookpromises)
 
     deactivate: ->
       @isActive = false
@@ -91,14 +90,8 @@ define 'State', ['StateManager'], (StateManager) ->
       @onDeactivate?()
       @currentChild = null
 
-    generateRoute: (parameters) ->
-      "#{[@parent.generateRoute(parameters) +
-            '/' if @parent?.generateRoute(parameters).length]}" +
-      "#{[insertParameters(@route, parameters) if @route]}"
-
-    generateRouteString: ->
-      "#{["#{@parent.generateRouteString()}#{'/' if @route}
-      "if @parent?.generateRouteString().length]}#{[@route]}"
+    onActivate: (cb)->
+      @activationHooks.push(cb)
 
     generateName: ->
       "#{[@parent.generateName() + '.' if @parent?.statename]}#{@statename}"

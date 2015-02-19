@@ -30,10 +30,10 @@ gulp.task 'coffeeTest', ['clean'], ->
 
 gulp.task 'minify', ['coffee'], ->
   gulp.src './dist/*.js'
-  .pipe concat 'backbone.stateful.js'
+  .pipe concat 'statr.js'
   .pipe gulp.dest './dist/'
   .pipe uglify()
-  .pipe rename 'backbone.stateful.min.js'
+  .pipe rename 'statr.min.js'
   .pipe gulp.dest './dist/'
 
 gulp.task 'lint', [], ->

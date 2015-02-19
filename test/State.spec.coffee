@@ -1,10 +1,10 @@
 define [
   'State'
+  'StateManager'
   'es6-promise'
-], (State, es6promise)->
-#  window.Promise = es6promise.Promise
+], (State, StateManager, es6promise)->
+  window.Promise = es6promise.Promise
   es6promise.polyfill()
-  chai.config.includeStack = true;
 
   defer = ()->
     result = {}
@@ -14,116 +14,120 @@ define [
     return result
 
   describe 'State', ->
-    astate = new class extends State
-      statename: 'a'
-      route: 'a'
-    abstate = new class extends State
-      statename: 'b'
-      route: 'b'
-      parent: astate
-    abcstate = new class extends State
-      statename: 'c'
-      route: 'c'
-      parent: abstate
-    abcdstate = new class extends State
-      statename: 'd'
-      route: 'd'
-      parent: abcstate
-    abcdestate = new class extends State
-      statename: 'e'
-      route: 'e'
-      parent: abcdstate
-    bstate = new class extends State
-      statename: 'b'
-      route: 'b'
-    bastate = new class extends State
-      statename: 'a'
-      route: ':foo'
-      parent: bstate
-    bbstate = new class extends State
-      statename: 'b'
-      route: 'b'
-      parent: bstate
-    bcstate = new class extends State
-      statename: 'c'
-      parent: bstate
-    bcastate = new class extends State
-      statename: 'a'
-      route: 'a'
-      parent: bcstate
+
+    beforeEach ->
+      StateManager.clear()
 
     describe 'name generation', ->
-      it 'should result in the correct name for state "a"', ->
-        expect(astate.generateName()).to.equal 'a'
-      it 'should result in the correct name for state "a.b"', ->
-        expect(abstate.generateName()).to.equal 'a.b'
-      it 'should result in the correct name for state "a.b.c"', ->
-        expect(abcstate.generateName()).to.equal 'a.b.c'
-      it 'should result in the correct name for state "b"', ->
-        expect(bstate.generateName()).to.equal 'b'
-      it 'should result in the correct name for state "b.a"', ->
-        expect(bastate.generateName()).to.equal 'b.a'
-      it 'should result in the correct name for state "b.b"', ->
-        expect(bbstate.generateName()).to.equal 'b.b'
+      namedstate = new class extends State
+        statename: 'namedstate'
+      namedstateA = new class extends State
+        statename: 'a'
+        parent: namedstate
+      namedstateAB = new class extends State
+        statename: 'b'
+        parent: namedstateA
+      namedstateB = new class extends State
+        statename: 'b'
+        parent: namedstate
+      namedstateBA = new class extends State
+        statename: 'a'
+        parent: namedstateB
+      namedstateBB = new class extends State
+        statename: 'b'
+        parent: namedstateB
 
-    describe 'route generation', ->
-      it 'should result in the correct route for state "a"', ->
-        expect(astate.generateRouteString()).to.equal 'a'
-      it 'should result in the correct route for state "a.b"', ->
-        expect(abstate.generateRouteString()).to.equal 'a/b'
-      it 'should result in the correct route for state "a.b.c"', ->
-        expect(abcstate.generateRouteString()).to.equal 'a/b/c'
-      it 'should result in the correct route for state "b"', ->
-        expect(bstate.generateRouteString()).to.equal 'b'
-      it 'should result in the correct route for state "b.a"', ->
-        expect(bastate.generateRouteString()).to.equal 'b/:foo'
-      it 'should result in the correct route for state "b.b"', ->
-        expect(bbstate.generateRouteString()).to.equal 'b/b'
-
-      it 'should result in the correct templating of the route for bastate', ->
-        expect(bastate.generateRoute foo: 'abc').to.equal 'b/abc'
-
-      it 'should not generate repeating slashes, even if one state does not have a route', ->
-        expect(bcastate.generateRouteString()).not.to.match(/\/\//)
+      it 'should result in the correct name for state "namedstate"', ->
+        expect(namedstate.generateName()).to.equal 'namedstate'
+      it 'should result in the correct name for state "namedstate.a"', ->
+        expect(namedstateA.generateName()).to.equal 'namedstate.a'
+      it 'should result in the correct name for state "namedstate.a.b"', ->
+        expect(namedstateAB.generateName()).to.equal 'namedstate.a.b'
+      it 'should result in the correct name for state "namedstate.b"', ->
+        expect(namedstateB.generateName()).to.equal 'namedstate.b'
+      it 'should result in the correct name for state "namedstate.b.a"', ->
+        expect(namedstateBA.generateName()).to.equal 'namedstate.b.a'
+      it 'should result in the correct name for state "namedstate.b.b"', ->
+        expect(namedstateBB.generateName()).to.equal 'namedstate.b.b'
 
     describe 'promise handling', ->
-      it 'should resolve the states promises beforehand', ()->
-        deferred1 = defer()
+      it 'should resolve the states promises beforehand', (done)->
+        deferred = defer()
 
         promiseTestState = new class extends State
-          route: ''
+          statename: 'promiseTestState'
           resolve:
             promise1: ->
-              return deferred1.promise
+              return deferred.promise
 
         expect(promiseTestState.isActive).not.to.be.true
 
         promiseTestState.activate()
         .then ->
           expect(promiseTestState.isActive).to.be.true
+          done()
 
         expect(promiseTestState.isActive).not.to.be.true
 
-        deferred1.resolve('asd')
+        deferred.resolve('asd')
+
+    describe 'activating states', ->
+      it 'should call the activation handlers, when being activated', (done)->
+        activationTestState = new class extends State
+        activationTestState.onActivate ->
+          done()
+        activationTestState.activate()
+
+      it 'should call the resolve functions only once when activating multiple times', (done)->
+        resolvingState = new class extends State
+          statename: 'resolvingstate'
+          resolve:
+            promise1: sinon.spy()
+
+        resolvingState.activate()
+        .then ->
+          resolvingState.activate()
+          .then ->
+            expect(resolvingState.resolve.promise1.callCount).to.equal 1
+            done()
+
 
     describe 'deactivating states', ->
-      it 'should deactivate all substates, when being deactivated', ()->
-        abcdestate.activate()
-        .then ->
-          expect(astate.isActive).to.be.true
-          expect(abstate.isActive).to.be.true
-          expect(abcstate.isActive).to.be.true
-          astate.deactivate()
-          expect(astate.isActive).to.be.false
-          expect(abstate.isActive).to.be.false
-          expect(abcstate.isActive).to.be.false
+      it 'should deactivate all substates, when being deactivated', (done)->
+        deactivatingState = new class extends State
+          statename: 'deactivatingState'
+        deactivatingStateChildA = new class extends State
+          statename: 'deactivatingStateChildA'
+          parent: deactivatingState
+        deactivatingStateChildB = new class extends State
+          statename: 'deactivatingStateChildB'
+          parent: deactivatingState
 
-      it 'should call the on deactivate function, when a state is deactivated', ()->
-        astate.onDeactivate = sinon.spy()
-        abcstate.onDeactivate = sinon.spy()
-        abcstate.activate()
+        deactivatingStateChildA.activate()
         .then ->
-          astate.deactivate()
-          expect(astate.isActive).not.to.be.true
-          expect(astate.onDeactivate.called).to.be.true
-          expect(abcstate.isActive).not.to.be.true
+          expect(deactivatingState.isActive).to.be.true
+          deactivatingState.deactivate()
+          expect(deactivatingState.isActive).to.be.false
+          done()
+        , (reason)->
+          fail(reason)
+          done()
+
+      it 'should call the on deactivate function, when a state is deactivated', (done)->
+        deactivatingstate = new class extends State
+          statename: 'deactivatingstate'
+          onDeactivate: sinon.spy()
+        deactivatingstateA = new class extends State
+          statename: 'a'
+          parent: deactivatingstate
+          onDeactivate: sinon.spy()
+        deactivatingstateA.activate()
+        .then ->
+          deactivatingstate.deactivate()
+          expect(deactivatingstate.isActive).not.to.be.true
+          expect(deactivatingstateA.isActive).not.to.be.true
+          expect(deactivatingstateA.onDeactivate.called).to.be.true
+          done()
+        , (reason)->
+          fail(reason)
+          done()

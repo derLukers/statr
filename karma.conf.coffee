@@ -16,7 +16,7 @@ module.exports = (config) ->
       {pattern: 'bower_components/jquery/dist/jquery.js', included: false}
     ]
 
-    reporters: ['progress', 'dots', 'html', 'coverage']
+    reporters: ['progress', 'html']
 
     port: 9876
 
@@ -26,7 +26,7 @@ module.exports = (config) ->
 
     autoWatch: true
 
-    browsers: ['PhantomJS']
+    browsers: ['Chrome']
 
     singleRun: false
 
@@ -47,4 +47,4 @@ module.exports = (config) ->
     preprocessors:
       'test/*.coffee': ['coffee', 'sourcemap']
       'test-main.coffee': ['coffee', 'sourcemap']
-      'src/*.coffee': ['coverage', 'sourcemap']
+      'src/*.coffee': ['coffee', 'sourcemap']

@@ -1,26 +1,25 @@
 {
-  "name": "backbone.stateful",
+  "name": "statr",
   "version": "0.1.0",
-  "description": "An extension to the Backbone router to ass stateful behaviour, heavily inspired by Angular-ui.router.",
-  "main": "index.js",
+  "description": "A state engine, rebuilding the state concept laid down by Angular-ui router",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/derLukers/backbone.stateful.git"
+    "url": "http://github.com/derLukers/statr.git"
   },
   "keywords": [
-    "Backbone",
-    "Stateful",
-    "Router"
+    "State Engine",
+    "State",
+    "Stateful"
   ],
   "author": "Lukas Peleska <git@luaks.net>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/derLukers/backbone.stateful/issues"
+    "url": "https://github.com/derLukers/statr/issues"
   },
-  "homepage": "https://github.com/derLukers/backbone.stateful",
+  "homepage": "https://github.com/derLukers/statr",
   "devDependencies": {
     "bower": "^1.3.12",
     "chai": "^1.10.0",

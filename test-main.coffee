@@ -19,7 +19,6 @@ require.config
   callback: window.__karma__.start
 
   paths:
-    backbone: 'bower_components/backbone/backbone'
     jquery: 'bower_components/jquery/dist/jquery'
     underscore: 'bower_components/underscore/underscore'
     'es6-promise': 'bower_components/es6-promise/index'

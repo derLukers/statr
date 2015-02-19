@@ -1,5 +1,5 @@
 {
-  "name": "backbone.stateful",
+  "name": "statr",
   "version": "0.1.0",
   "authors": [
     "Lukas Peleska <git@luaks.net>"
@@ -9,12 +9,12 @@
     "amd"
   ],
   "keywords": [
-    "Backbone",
-    "Stateful",
-    "Router"
+    "State Engine",
+    "State",
+    "Stateful"
   ],
   "license": "MIT",
-  "homepage": "http://github.com/derLukers/backbone.stateful",
+  "homepage": "http://github.com/derLukers/statr",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -25,7 +25,6 @@
   "private": true,
   "devDependencies": {
     "requirejs": "~2.1.15",
-    "backbone": "~1.1.2",
     "jquery": "~2.1.1"
   },
   "dependencies": {
