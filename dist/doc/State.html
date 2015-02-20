@@ -24,7 +24,6 @@ This approach however, comes with a performance trade off, when having slow reso
 <h2 id="creating-states">Creating States</h2>
 <p>States can be created in the following way:</p>
 <pre><code class="lang-coffeescript"><div class="highlight"><pre><span class="nv">organizer = </span><span class="k">new</span> <span class="k">class</span> <span class="k">extends</span> <span class="nx">State</span>
-    <span class="nv">route: </span><span class="s">&#39;&#39;</span>
     <span class="nv">statename: </span><span class="s">&#39;organizer&#39;</span>
     <span class="nv">resolve:</span>
         <span class="nv">user: </span><span class="nf">-&gt;</span>
@@ -33,7 +32,6 @@ This approach however, comes with a performance trade off, when having slow reso
         <span class="p">...</span> <span class="nx">show</span> <span class="nx">organizer</span> <span class="nx">view</span> <span class="k">for</span> <span class="nx">user</span> <span class="p">...</span>
 
 <span class="nv">contacts = </span><span class="k">new</span> <span class="k">class</span> <span class="k">extends</span> <span class="nx">State</span>
-    <span class="nv">route: </span><span class="s">&#39;contacts&#39;</span>
     <span class="nv">statename: </span><span class="s">&#39;contacts&#39;</span>
     <span class="nv">parent: </span><span class="nx">organizer</span>
     <span class="nv">resolve:</span>
@@ -43,7 +41,6 @@ This approach however, comes with a performance trade off, when having slow reso
         <span class="p">...</span> <span class="nx">show</span> <span class="nx">contacts</span> <span class="nx">view</span> <span class="k">for</span> <span class="nx">user</span> <span class="p">...</span>
 
 <span class="nv">editcontact = </span><span class="k">new</span> <span class="k">class</span> <span class="k">extends</span> <span class="nx">State</span>
-    <span class="nv">route: </span><span class="s">&#39;:contactid/edit&#39;</span>
     <span class="nv">statename: </span><span class="s">&#39;edit&#39;</span>
     <span class="nv">parent: </span><span class="nx">organizer</span>
     <span class="nv">resolve:</span>

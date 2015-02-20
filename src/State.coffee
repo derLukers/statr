@@ -10,8 +10,10 @@ define 'State', ['StateManager'], (StateManager) ->
 
   class State
     isActive: false
+    mixins: []
 
     constructor: ->
+      @use if @mixins.length then @mixins else [@mixins]
       StateManager.registerState @
 
     activationHooks: []
@@ -100,3 +102,9 @@ define 'State', ['StateManager'], (StateManager) ->
       chain = @parent?.getParentChain() or []
       chain.push @
       return chain
+
+    use: (mixins) ->
+      for mixin in mixins
+        @[key] = value for key, value of (mixin::) when key isnt 'constructor'
+        mixin?.call? @
+      return @

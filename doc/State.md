@@ -27,7 +27,6 @@ This approach however, comes with a performance trade off, when having slow reso
 States can be created in the following way:
 ```coffeescript
 organizer = new class extends State
-    route: ''
     statename: 'organizer'
     resolve:
         user: ->
@@ -36,7 +35,6 @@ organizer = new class extends State
         ... show organizer view for user ...
 
 contacts = new class extends State
-    route: 'contacts'
     statename: 'contacts'
     parent: organizer
     resolve:
@@ -46,7 +44,6 @@ contacts = new class extends State
         ... show contacts view for user ...
 
 editcontact = new class extends State
-    route: ':contactid/edit'
     statename: 'edit'
     parent: organizer
     resolve:
